@@ -1,9 +1,8 @@
+# wel.py
 import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from flask import Flask
-import threading
 
 # ============================
 # 1️⃣ โหลด .env
@@ -16,7 +15,7 @@ CHANNEL_ID = int(os.getenv('CHANNEL_ID'))  # ช่องที่ bot ส่ง
 # 2️⃣ ตั้งค่า Intents
 # ============================
 intents = discord.Intents.default()
-intents.members = True           # ต้องเปิดเพื่อจับสมาชิกเข้าร่วม
+intents.members = True    # ต้องเปิดเพื่อจับสมาชิกเข้าร่วม
 intents.messages = True
 intents.guilds = True
 
@@ -73,22 +72,7 @@ async def on_member_join(member):
         new_members.clear()
 
 # ============================
-# 6️⃣ Fake HTTP server สำหรับ Render
-# ============================
-app = Flask("")
-
-@app.route("/")
-def home():
-    return "Bot is running!"
-
-def run_flask():
-    app.run(host="0.0.0.0", port=1000)
-
-# รัน Flask ใน Thread แยก
-threading.Thread(target=run_flask).start()
-
-# ============================
-# 7️⃣ Run Discord bot
+# 6️⃣ Run bot
 # ============================
 bot.run(TOKEN)
 
