@@ -1,3 +1,18 @@
-.env
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+
+# Flask (ถ้ามี)
+instance/
+*.db
+
+# Byte-compiled / cache
+*.egg
+*.egg-info/
+dist/
+build/
