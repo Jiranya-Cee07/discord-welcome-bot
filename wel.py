@@ -2,6 +2,8 @@ import os
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from flask import Flask
+import threading
 
 # ============================
 # 1️⃣ โหลด .env
@@ -71,6 +73,22 @@ async def on_member_join(member):
         new_members.clear()
 
 # ============================
-# 6️⃣ Run bot python wel.py
+# 6️⃣ Fake HTTP server สำหรับ Render
+# ============================
+app = Flask("")
+
+@app.route("/")
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    app.run(host="0.0.0.0", port=1000)
+
+# รัน Flask ใน Thread แยก
+threading.Thread(target=run_flask).start()
+
+# ============================
+# 7️⃣ Run Discord bot
 # ============================
 bot.run(TOKEN)
+
