@@ -1,51 +1,44 @@
-# wel.py
 import os
+import threading
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from flask import Flask
 
 # ============================
 # 1️⃣ โหลด .env
 # ============================
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
-CHANNEL_ID = int(os.getenv('CHANNEL_ID'))  # ช่องที่ bot ส่งข้อความ
+CHANNEL_ID = int(os.getenv('CHANNEL_ID'))
 
 # ============================
 # 2️⃣ ตั้งค่า Intents
 # ============================
 intents = discord.Intents.default()
-intents.members = True    # ต้องเปิดเพื่อจับสมาชิกเข้าร่วม
+intents.members = True
 intents.messages = True
 intents.guilds = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# ============================
-# 3️⃣ ตัวแปรเก็บสมาชิกใหม่
-# ============================
 new_members = []
 
 # ============================
-# 4️⃣ Event เมื่อ bot พร้อมใช้งาน
+# 3️⃣ Discord Events
 # ============================
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user}!')
-    print("Bot พร้อมแล้ว 🎉")
+    print(f'Logged in as {bot.user}! Bot พร้อมแล้ว 🎉')
 
-# ============================
-# 5️⃣ Event เมื่อมีสมาชิกใหม่เข้ามา
-# ============================
+
 @bot.event
 async def on_member_join(member):
     global new_members
-    # ป้องกันสมาชิกซ้ำ
+
     if member.id not in new_members:
         new_members.append(member.id)
-        print(f"New member joined: {member} | Current list: {new_members}")
 
-    # ส่งข้อความเมื่อครบ 3 คน
     if len(new_members) >= 3:
         channel = bot.get_channel(CHANNEL_ID)
         if channel:
@@ -66,13 +59,31 @@ async def on_member_join(member):
 ───✱.｡:｡✱↶ೃ ❃ ↷ ˊ-.:｡✧*.｡✰ ───
 """
             await channel.send(message)
-            print("Message sent:", message)
 
-        # ล้าง list หลังส่ง → เริ่มรอบใหม่
         new_members.clear()
 
 # ============================
-# 6️⃣ Run bot
+# 4️⃣ Flask Server (ให้ Render Detect Port)
 # ============================
-bot.run(TOKEN)
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Bot is running!"
+
+def run_flask():
+    port = int(os.environ.get("PORT", 5000))
+    print("Running Flask on port", port)
+    app.run(host="0.0.0.0", port=port)
+
+
+# ============================
+# 5️⃣ Run Discord Bot + Flask
+# ============================
+if __name__ == "__main__":
+    # รัน Flask แบบ background thread
+    threading.Thread(target=run_flask).start()
+
+    # รันบอท
+    bot.run(TOKEN)
 
